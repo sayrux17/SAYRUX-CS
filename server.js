@@ -31,7 +31,7 @@ function rateLimit(req, res, next) {
   next();
 }
 
-app.get("/api/health", (_req, res) => res.json({ ok: true, service: "SAYRUX-CS" }));
+app.get("/",api/health", (_req, res) => res.json({ ok: true, service: "SAYRUX-CS" }));
 
 app.post("/api/chat", rateLimit, async (req, res) => {
   const apiKey = process.env.GROQ_API_KEY;
