@@ -9,6 +9,10 @@ const PORT = process.env.PORT || 3000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json({ limit: "40kb" }));
+app.get("/api/health", (_req, res) => res.json({ ok: true, service: "SAYRUX-CS" }));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -33,7 +37,7 @@ function rateLimit(req, res, next) {
   next();
 }
 
-app.get("/",api/health", (_req, res) => res.json({ ok: true, service: "SAYRUX-CS" }));
+
 
 app.post("/api/chat", rateLimit, async (req, res) => {
   const apiKey = process.env.GROQ_API_KEY;
