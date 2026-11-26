@@ -15,8 +15,6 @@ app.get("/", (req, res) => {
 });
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
 const windows = new Map();
 const LIMIT = 12;
 const WINDOW_MS = 60_000;
