@@ -10,7 +10,9 @@ const PORT = process.env.PORT || 3000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json({ limit: "40kb" }));
-
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 const windows = new Map();
 const LIMIT = 12;
 const WINDOW_MS = 60_000;
