@@ -1,24 +1,54 @@
-# SAYRUX-CS — Black Edition
 
-Тёмный сайт о Counter-Strike 2 с AI-чатом на Groq.
+import "dotenv/config";
+import express from "express";
+import OpenAI from "openai";
+import path from "path";
+import { fileURLToPath } from "url";
 
-## Локальный запуск
+const app = express();
+const PORT = process.env.PORT || 3000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-1. Установи Node.js 20 или новее.
-2. Скопируй `.env.example` в `.env`.
-3. В `.env` укажи свой `GROQ_API_KEY`. Не публикуй этот файл и не вставляй ключ в HTML.
-4. Установи зависимости: `npm install`
-5. Запусти: `npm start`
-6. Открой `http://localhost:3000`.
+app.use(express.json({ limit: "40kb" }));
+app.use(express.static(path.join(__dirname, "public")));
 
-## Деплой на Render
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
-- Создай Web Service из GitHub-репозитория.
-- Build Command: `npm install`
-- Start Command: `npm start`
-- В Environment добавь:
-  - `GROQ_API_KEY` — твой секретный ключ Groq
-  - `GROQ_MODEL` — `openai/gpt-oss-20b`
-- После деплоя проверь `/api/health`.
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, service: "SAYRUX-CS" });
+});
 
-API-ключ хранится только на сервере в переменных окружения. Не добавляй `.env` в GitHub.
+app.post("/api/chat", async (req, res) => {
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(503).json({ error: "Не настроен Groq API key" });
+  }
+
+  try {
+    const client = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
+    });
+
+    const messages = (req.body.messages || [])
+      .filter(m => ["user", "assistant"].includes(m.role))
+      .slice(-12);
+
+    const result = await client.chat.completions.create({
+      model: process.env.GROQ_MODEL || "openai/gpt-oss-20b",
+      messages: [
+        { role: "system", content: "Ты SAYRUX, AI-помощник по Counter-Strike 2. Отвечай на русском языке." },
+        ...messages
+      ]
+    });
+
+    res.json({ reply: result.choices[0].message.content });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Ошибка AI. Попробуй ещё раз." });
+  }
+});
+
+app.listen(PORT, () => console.log(`SAYRUX-CS running on port ${PORT}`));
+
