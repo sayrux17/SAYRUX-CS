@@ -10,7 +10,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json({ limit: "40kb" }));
 app.use(express.static(path.join(__dirname, "public")));
-
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 const windows = new Map();
 const LIMIT = 12;
 const WINDOW_MS = 60_000;
